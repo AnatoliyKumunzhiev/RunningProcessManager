@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Web.Http;
+using System.Web.Http.Cors;
 using Cache;
 using Cache.DTOs;
 
 namespace ProcessManager.Controllers
 {
+    [EnableCors("*", "*", "*")]
     public class ProcessManagerController : ApiController
     {
         /// <summary>

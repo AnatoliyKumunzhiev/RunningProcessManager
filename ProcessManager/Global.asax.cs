@@ -24,6 +24,7 @@ namespace ProcessManager
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
+            var counters = PerformanceCounterBase.GetPerformanceCounters();
             //Run refresh performance info task
             Task.Run(() =>
             {
@@ -32,7 +33,6 @@ namespace ProcessManager
                     var i = 1;
                     var processes = Process.GetProcesses().Select(e => (i++, e)).ToList();
 
-                    var counters = PerformanceCounterBase.GetPerformanceCounters();
                     var lockObject = new object();
                     List<PerformanceInfoElement> list = new List<PerformanceInfoElement>();
 
