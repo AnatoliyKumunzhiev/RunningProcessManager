@@ -35,7 +35,7 @@ namespace PerformanceCounterModule.PerformanceCounters
             var totalCounter = new PerformanceCounter("Processor", _counterName, "_Total");
             var processCounters = new List<(int Id, PerformanceCounter counter)>();
 
-            //Сreate counters for all processes
+            //Create counters for all processes
             foreach (var process in processes)
             {
                 try

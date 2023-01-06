@@ -44,7 +44,7 @@ namespace ProcessManager
 
                     ProcessesInfoCache.SetInfo(new PerformanceInfoList(Guid.NewGuid(), list));
 
-                    Thread.Sleep(10000);
+                    Thread.Sleep(5000);
 
                     void SetList(PerformanceInfoElement element)
                     {

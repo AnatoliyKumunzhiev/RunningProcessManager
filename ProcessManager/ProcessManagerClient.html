@@ -1,0 +1,107 @@
+﻿<!DOCTYPE html>
+<style>
+    table {
+        border-collapse: collapse;
+    }
+
+    td, th {
+        padding: 5px;
+        border: 1px solid lightgray;
+    }
+
+    .redText {
+        padding: 5px;
+        color: #FF0000;
+    }
+</style>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <div id="cpuOverloadDiv" class="redText">
+    </div>
+    <table id="processesInfoTable">
+    </table>
+    <script>
+    const url = 'https://localhost:44387/api/ProcessManager';
+    var infoGuid = '00000000-0000-0000-0000-000000000000';
+
+    var source = new EventSource('https://localhost:44387/api/ProcessManager/SubscribeCpuOverload');
+
+    source.onmessage = function(event) {
+        var div = document.getElementById('cpuOverloadDiv');
+        div.innerHTML = event.data;
+    };
+
+    sendRequest(infoGuid).then(data => {
+        infoGuid = data.Id;
+        fillTable(data);
+    });
+
+    setInterval(function () {
+        sendRequest(infoGuid).then(data => {
+            if (!data.UsePrevious) {
+                infoGuid = data.Id;
+                fillTable(data);
+            }
+        });
+    }, 2000);
+
+    function sendRequest(id) {
+        return fetch(url + '/?id=' + id,
+            {
+                method: "GET"
+            }).then(response => { return response.json() });
+    }
+
+    function fillTable(data) {
+
+        if (data.PerformanceInfos.length > 0) {
+
+            var thead = document.createElement("thead");
+            var headerRow = document.createElement("tr");
+            var processNameCellHeader = document.createElement("th");
+            processNameCellHeader.innerHTML = "Process";
+            headerRow.appendChild(processNameCellHeader);
+
+            var info;
+            for (var i = 0; i < data.PerformanceInfos.length; i++) {
+                info = data.PerformanceInfos[i];
+                var headerCell = document.createElement("th");
+                headerCell.innerHTML = info.TypeName + ', ' + info.ProcessInfoUnit;
+                headerRow.appendChild(headerCell);
+            }
+
+            thead.appendChild(headerRow);
+
+            var tbody = document.createElement("tbody");
+
+            for (var m = 0; m < data.PerformanceInfos[0].ProcessInfos.length; m++) {
+
+                var processRow = document.createElement("tr");
+                var processNameCell = document.createElement("td");
+                processNameCell.innerHTML = data.PerformanceInfos[0].ProcessInfos[m].Name;
+                processRow.appendChild(processNameCell);
+
+                for (var n = 0; n < data.PerformanceInfos.length; n++) {
+                    info = data.PerformanceInfos[n];
+                    var processInfo = info.ProcessInfos[m];
+                    var processValueCell = document.createElement("td");
+                    processValueCell.innerHTML = processInfo.Value;
+                    processRow.appendChild(processValueCell);
+                }
+
+                tbody.appendChild(processRow);
+            }
+
+            var table = document.getElementById('processesInfoTable');
+            table.innerHTML = "";
+            table.appendChild(thead);
+            table.appendChild(tbody);
+        }
+    }
+    </script>
+</body>
+</html>
